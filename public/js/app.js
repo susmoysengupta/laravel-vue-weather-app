@@ -1992,9 +1992,38 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     this.fetchData();
   },
+  data: function data() {
+    return {
+      location: {
+        name: "Chittagong",
+        lat: 22.3569,
+        lon: 91.7832
+      },
+      currentTemp: {
+        actualTemp: "",
+        feelsLike: "",
+        summary: "",
+        icon: ""
+      }
+    };
+  },
   methods: {
     fetchData: function fetchData() {
-      fetch();
+      var _this = this;
+
+      var skycons = new Skycons({
+        color: "pink"
+      });
+      fetch("/api/weather?lat=".concat(this.location.lat, "&lon=").concat(this.location.lon)).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        console.log(data);
+        _this.currentTemp.actualTemp = data.main.temp;
+        _this.currentTemp.feelsLike = data.main.feels_like;
+        _this.currentTemp.summary = data.weather[0].main;
+        _this.currentTemp.icon = data.weather[0].icon;
+        skycons.add("iconCurrent", "");
+      });
     }
   }
 });
@@ -37606,7 +37635,31 @@ var render = function() {
               "current-weather flex items-center justify-between px-6 py-8"
           },
           [
-            _vm._m(1),
+            _c(
+              "div",
+              { staticClass: "flex flex-col md:flex-row items-center" },
+              [
+                _c("div", [
+                  _c("div", { staticClass: "text-6xl font-semibold" }, [
+                    _vm._v(_vm._s(_vm.currentTemp.actualTemp) + "°C")
+                  ]),
+                  _vm._v(" "),
+                  _c("div", [
+                    _vm._v(
+                      "Feels like " + _vm._s(_vm.currentTemp.feelsLike) + "°C"
+                    )
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "md:mx-5" }, [
+                  _c("div", { staticClass: "font-semibold" }, [
+                    _vm._v(_vm._s(_vm.currentTemp.summary))
+                  ]),
+                  _vm._v(" "),
+                  _c("div", [_vm._v(_vm._s(_vm.location.name))])
+                ])
+              ]
+            ),
             _vm._v(" "),
             _c("div", [
               _c("canvas", {
@@ -37617,7 +37670,7 @@ var render = function() {
           ]
         ),
         _vm._v(" "),
-        _vm._m(2)
+        _vm._m(1)
       ]
     )
   ])
@@ -37642,30 +37695,6 @@ var staticRenderFns = [
         _c("strong", { attrs: { id: "address-value" } }, [_vm._v("none")])
       ])
     ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "div",
-      { staticClass: "flex flex-col md:flex-row items-center" },
-      [
-        _c("div", [
-          _c("div", { staticClass: "text-6xl font-semibold" }, [
-            _vm._v("26°C")
-          ]),
-          _vm._v(" "),
-          _c("div", [_vm._v("Feels like 31°C")])
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "md:mx-5" }, [
-          _c("div", { staticClass: "font-semibold" }, [_vm._v("Overcast")]),
-          _vm._v(" "),
-          _c("div", [_vm._v("Chittagong")])
-        ])
-      ]
-    )
   },
   function() {
     var _vm = this

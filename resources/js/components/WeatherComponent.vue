@@ -14,12 +14,12 @@
       <div class="current-weather flex items-center justify-between px-6 py-8">
         <div class="flex flex-col md:flex-row items-center">
           <div>
-            <div class="text-6xl font-semibold">26°C</div>
-            <div>Feels like 31°C</div>
+            <div class="text-6xl font-semibold">{{ currentTemp.actualTemp }}°C</div>
+            <div>Feels like {{ currentTemp.feelsLike }}°C</div>
           </div>
           <div class="md:mx-5">
-            <div class="font-semibold">Overcast</div>
-            <div>Chittagong</div>
+            <div class="font-semibold">{{ currentTemp.summary }}</div>
+            <div>{{ location.name}}</div>
           </div>
         </div>
         <div>
@@ -52,14 +52,36 @@ export default {
   mounted() {
     this.fetchData();
   },
+  data() {
+    return {
+      location: {
+        name: "Chittagong",
+        lat: 22.3569,
+        lon: 91.7832
+      },
+      currentTemp: {
+        actualTemp: "",
+        feelsLike: "",
+        summary: "",
+        icon: ""
+      }
+    };
+  },
   methods: {
     fetchData() {
-      fetch();
+      var skycons = new Skycons({ color: "pink" });
+
+      fetch(`/api/weather?lat=${this.location.lat}&lon=${this.location.lon}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          this.currentTemp.actualTemp = data.main.temp;
+          this.currentTemp.feelsLike = data.main.feels_like;
+          this.currentTemp.summary = data.weather[0].main;
+          this.currentTemp.icon = data.weather[0].icon;
+          skycons.add("iconCurrent", "partly-coludy-day");
+        });
     }
   }
 };
 </script>
-
-
-
-

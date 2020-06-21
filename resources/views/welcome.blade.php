@@ -11,6 +11,8 @@
     <div id="app" class="flex justify-center pt-16">
         <weather-component></weather-component>
     </div>
+    <script src="https://rawgithub.com/darkskyapp/skycons/master/skycons.js"></script>
     <script src="/js/app.js"></script>
+    
 </body>
 </html>
