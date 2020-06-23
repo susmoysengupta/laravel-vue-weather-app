@@ -1988,42 +1988,84 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     this.fetchData();
+    this.fetchLocation();
   },
   data: function data() {
     return {
       location: {
         name: "Chittagong",
-        lat: 22.3569,
-        lon: 91.7832
+        lat: 22.34551,
+        lon: 91.837817
       },
       currentTemp: {
         actualTemp: "",
         feelsLike: "",
         summary: "",
         icon: ""
-      }
+      },
+      daily: [],
+      iconLink: "http://openweathermap.org/img/wn/"
     };
   },
   methods: {
     fetchData: function fetchData() {
       var _this = this;
 
-      var skycons = new Skycons({
-        color: "pink"
-      });
       fetch("/api/weather?lat=".concat(this.location.lat, "&lon=").concat(this.location.lon)).then(function (response) {
         return response.json();
       }).then(function (data) {
         console.log(data);
-        _this.currentTemp.actualTemp = data.main.temp;
-        _this.currentTemp.feelsLike = data.main.feels_like;
-        _this.currentTemp.summary = data.weather[0].main;
-        _this.currentTemp.icon = data.weather[0].icon;
-        skycons.add("iconCurrent", "");
+        _this.currentTemp.actualTemp = data.current.temp;
+        _this.currentTemp.feelsLike = data.current.feels_like;
+        _this.currentTemp.summary = data.current.weather[0].main;
+        _this.currentTemp.icon = _this.iconLink + data.current.weather[0].icon + ".png";
+        _this.daily = data.daily;
       });
+    },
+    toDayOfWeek: function toDayOfWeek(timstamp) {
+      var newDate = new Date(timstamp * 1000);
+      var days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+      return days[newDate.getDay()];
+    },
+    fetchLocation: function fetchLocation() {
+      var _this2 = this;
+
+      var placesAutocomplete = places({
+        appId: "plJVGGM4JGP5",
+        apiKey: "f8e6b521e463819a1f803e190e3270ad",
+        container: document.querySelector("#address")
+      }).configure({
+        type: "city",
+        aroundLatLngViaIP: false
+      });
+      var $address = document.querySelector("#address-value");
+      placesAutocomplete.on("change", function (e) {
+        $address.textContent = e.suggestion.value;
+        _this2.location.name = "".concat(e.suggestion.name, ", ").concat(e.suggestion.country);
+        _this2.location.lat = e.suggestion.latlng.lat;
+        _this2.location.lon = e.suggestion.latlng.lng;
+      });
+      placesAutocomplete.on("clear", function () {
+        $address.textContent = "none";
+      });
+    }
+  },
+  watch: {
+    location: {
+      handler: function handler(newValue, oldValue) {
+        this.fetchData();
+      },
+      deep: true
     }
   }
 });
@@ -37640,13 +37682,17 @@ var render = function() {
               { staticClass: "flex flex-col md:flex-row items-center" },
               [
                 _c("div", [
-                  _c("div", { staticClass: "text-6xl font-semibold" }, [
-                    _vm._v(_vm._s(_vm.currentTemp.actualTemp) + "°C")
+                  _c("div", { staticClass: "text-5xl font-semibold" }, [
+                    _vm._v(
+                      _vm._s(Math.round(_vm.currentTemp.actualTemp)) + "°C"
+                    )
                   ]),
                   _vm._v(" "),
                   _c("div", [
                     _vm._v(
-                      "Feels like " + _vm._s(_vm.currentTemp.feelsLike) + "°C"
+                      "Feels like " +
+                        _vm._s(Math.round(_vm.currentTemp.feelsLike)) +
+                        "°C"
                     )
                   ])
                 ]),
@@ -37662,15 +37708,68 @@ var render = function() {
             ),
             _vm._v(" "),
             _c("div", [
-              _c("canvas", {
-                ref: "iconCurrent",
-                attrs: { id: "iconCurrent", width: "96", height: "96" }
+              _c("img", {
+                attrs: {
+                  src: _vm.currentTemp.icon,
+                  width: "90px",
+                  height: "90px"
+                }
               })
             ])
           ]
         ),
         _vm._v(" "),
-        _vm._m(1)
+        _c(
+          "div",
+          {
+            staticClass:
+              "future-weather text-sm bg-gray-800 px-6 py-8 overflow-hidden"
+          },
+          _vm._l(_vm.daily, function(day, index) {
+            return index > 0 && index < 6
+              ? _c(
+                  "div",
+                  {
+                    key: day.dt,
+                    staticClass: "flex items-center",
+                    class: { "mt-8": index > 0 }
+                  },
+                  [
+                    _c("div", { staticClass: "w-1/6 text-lg text-gray-200" }, [
+                      _vm._v(_vm._s(_vm.toDayOfWeek(day.dt)))
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "w-4/6 px-4 flex items-center" }, [
+                      _c("div", [
+                        _c("img", {
+                          attrs: {
+                            src: _vm.iconLink + day.weather[0].icon + ".png",
+                            width: "70px",
+                            height: "70px"
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "ml-3" }, [
+                        _vm._v(_vm._s(day.weather[0].description))
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "w-1/6 text-right" }, [
+                      _c("div", [
+                        _vm._v(_vm._s(Math.round(day.temp.max)) + "°C")
+                      ]),
+                      _vm._v(" "),
+                      _c("div", [
+                        _vm._v(_vm._s(Math.round(day.temp.min)) + "°C")
+                      ])
+                    ])
+                  ]
+                )
+              : _vm._e()
+          }),
+          0
+        )
       ]
     )
   ])
@@ -37682,7 +37781,6 @@ var staticRenderFns = [
     var _c = _vm._self._c || _h
     return _c("div", { staticClass: "places-input text-gray-800" }, [
       _c("input", {
-        staticClass: "form-control",
         attrs: {
           type: "search",
           id: "address",
@@ -37695,37 +37793,6 @@ var staticRenderFns = [
         _c("strong", { attrs: { id: "address-value" } }, [_vm._v("none")])
       ])
     ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "div",
-      {
-        staticClass:
-          "future-weather text-sm bg-gray-800 px-6 py-8 overflow-hidden"
-      },
-      [
-        _c("div", { staticClass: "flex items-center" }, [
-          _c("div", { staticClass: "w-1/6 text-lg text-gray-200" }, [
-            _vm._v("SAT")
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "w-4/6 px-4 flex items-center" }, [
-            _c("div"),
-            _vm._v(" "),
-            _c("div", { staticClass: "ml-3" }, [_vm._v("Mostly cloudy")])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "w-1/6 text-right" }, [
-            _c("div", [_vm._v("26°C")]),
-            _vm._v(" "),
-            _c("div", [_vm._v("23°C")])
-          ])
-        ])
-      ]
-    )
   }
 ]
 render._withStripped = true

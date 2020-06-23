@@ -24,6 +24,7 @@ Route::get('/weather', function(){
     $apiKey = config('services.weather.key');
     $lat = request('lat');
     $lon = request('lon');
-    $response = Zttp::get("api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&units=metric&appid=".$apiKey);
+    $response = Zttp::get("api.openweathermap.org/data/2.5/onecall?lat=$lat&lon=$lon&units=metric&appid=$apiKey");
+    
     return $response->json();
 });
